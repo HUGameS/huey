@@ -17,7 +17,7 @@
   [config]
   component/Lifecycle
   (start [this]
-    (let [handler (get-in this [:app :handler])]
+    (let [handler (get-in this [:app :handler :handler])]
       (assoc this :server (web/run handler config))))
   (stop [this]
     (when-let [server (:server this)]

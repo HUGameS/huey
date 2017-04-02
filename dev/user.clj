@@ -6,5 +6,3 @@
             [huey.system :as system]))
 
 (reloaded.repl/set-init! #(system/new-system env))
-
-(go)
