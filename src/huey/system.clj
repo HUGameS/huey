@@ -1,6 +1,5 @@
 (ns huey.system
   (:require [com.stuartsierra.component :as component]
-            [environ.core :refer [env]]
             [huey.routes :as r]
             [immutant.web :as web]
             [taoensso.timbre :as log]))

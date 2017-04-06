@@ -1,8 +1,11 @@
 (defproject huey "0.1.0-SNAPSHOT"
   :description "HUGameS Backend - Login, Matchmaking and Game Service"
-  :dependencies [[com.stuartsierra/component "0.3.2"]
+  :dependencies [[clojusc/friend-oauth2      "0.2.0"]
+                 [com.cemerick/friend        "0.2.3" :exclusions [org.apache.httpcomponents/httpclient]]
+                 [com.stuartsierra/component "0.3.2"]
                  [com.taoensso/sente         "1.11.0"]
                  [com.taoensso/timbre        "4.7.4"]
+                 [hiccup                     "1.0.5"]
                  [metosin/compojure-api      "1.1.10"]
                  [environ                    "1.1.0"]
                  [org.clojure/clojure        "1.8.0"]
@@ -14,7 +17,7 @@
   :ring {:handler huey.routes/app}
   :main ^:skip-aot huey.core
   :repl-options {:init-ns user}
-  :uberjar-name "server.jar"
+  :uberjar-name "huey.jar"
   :profiles {:prod {:resource-paths ["resources/prod"]}
              :dev  {:dependencies [[reloaded.repl "0.2.3"]
                                    [midje "1.8.3"]]
