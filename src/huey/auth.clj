@@ -1,14 +1,14 @@
 (ns huey.auth
   (:require [cemerick.friend :as friend]
             [config.core :refer [env]]
-            [friend-oauth2.workflow :as oauth2]
-            [friend-oauth2.util :refer [format-config-uri]]))
+            [friend-oauth2.util :as util]
+            [friend-oauth2.workflow :as oauth2]))
 
 (def client-config
-  {:client-id     (get-in env [:oauth2 :client-id])
-   :client-secret (get-in env [:oauth2 :client-secret])
+  {:client-id     (get-in env [:github-oauth2 :client-id])
+   :client-secret (get-in env [:github-oauth2 :client-secret])
    :callback      {:domain "http://localhost:3000" ;; replace this for production with the appropriate site URL
-                   :path "/user/profile"}})
+                   :path "/oauthcallback"}})
 
 (defn credential-fn
   "Upon successful authentication with the third party, Friend calls
@@ -23,32 +23,27 @@
   This example code just automatically assigns anyone who has
   authenticated with the third party the nominal role of ::user."
   [token]
-    {:identity token
-     :roles #{::user}})
+  {:identity token
+   :roles #{::user}})
 
 (def uri-config
-  {:authentication-uri {:url "https://accounts.google.com/o/oauth2/auth"
+  {:authentication-uri {:url   (get-in env [:github-oauth2 :auth-url])
                         :query {:client_id (:client-id client-config)
-                               :response_type "code"
-                               :redirect_uri (format-config-uri client-config)
-                               :scope "email"}}
+                                :response_type "code"
+                                :redirect_uri (util/format-config-uri client-config)
+                                :scope "email"}}
 
-   :access-token-uri {:url "https://accounts.google.com/o/oauth2/token"
+   :access-token-uri {:url   (get-in env [:github-oauth2 :access-uri])
                       :query {:client_id (:client-id client-config)
                               :client_secret (:client-secret client-config)
                               :grant_type "authorization_code"
-                              :redirect_uri (format-config-uri client-config)}}})
+                              :redirect_uri (util/format-config-uri client-config)}}})
 
 (def friend-config
   {:allow-anon? true
    :workflows   [(oauth2/workflow
-                  {:client-config client-config
-                   :uri-config uri-config
-                   :credential-fn credential-fn})
-                   ;; Optionally add other workflows here...
-                   ]})
+                   {:client-config        client-config
+                    :uri-config           uri-config
+                    :access-token-parsefn util/get-access-token-from-params
+                    :credential-fn        credential-fn})]})
 
-(defn wrap-auth
-  [handler]
-  (-> handler
-      (friend/authenticate friend-config)))
