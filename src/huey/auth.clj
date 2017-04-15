@@ -2,7 +2,12 @@
   (:require [cemerick.friend :as friend]
             [config.core :refer [env]]
             [friend-oauth2.util :as util]
-            [friend-oauth2.workflow :as oauth2]))
+            [friend-oauth2.workflow :as oauth2]
+            [huey.user.github :as git]))
+
+(def roles
+  {:user  ::user
+   :admin ::admin})
 
 (def client-config
   {:client-id     (get-in env [:github-oauth2 :client-id])
@@ -11,20 +16,14 @@
                    :path "/oauthcallback"}})
 
 (defn credential-fn
-  "Upon successful authentication with the third party, Friend calls
-  this function with the user's token. This function is responsible for
-  translating that into a Friend identity map with at least the :identity
-  and :roles keys. How you decide what roles to grant users is up to you;
-  you could e.g. look them up in a database.
-
-  You can also return nil here if you decide that the token provided
-  is invalid. This could be used to implement e.g. banning users.
-
-  This example code just automatically assigns anyone who has
-  authenticated with the third party the nominal role of ::user."
-  [token]
-  {:identity token
-   :roles #{::user}})
+  [db token]
+  (let [user (git/get-user-from-github (:access-token token))]
+    (when-not (git/existing-user? db (:user_id user))
+      (git/insert-new-user! db user))
+    (let [role (keyword (:role (git/get-user-role db (:user_id user))))]
+      {:identity token
+       :roles #{(get roles role)}
+       :user_id (:user_id user)})))
 
 (def uri-config
   {:authentication-uri {:url   (get-in env [:github-oauth2 :auth-url])
@@ -39,11 +38,10 @@
                               :grant_type "authorization_code"
                               :redirect_uri (util/format-config-uri client-config)}}})
 
-(def friend-config
+(defn friend-config
+  [db]
   {:allow-anon? true
-   :workflows   [(oauth2/workflow
-                   {:client-config        client-config
-                    :uri-config           uri-config
-                    :access-token-parsefn util/get-access-token-from-params
-                    :credential-fn        credential-fn})]})
-
+   :workflows   [(oauth2/workflow {:client-config        client-config
+                                   :uri-config           uri-config
+                                   :access-token-parsefn util/get-access-token-from-params
+                                   :credential-fn        (partial credential-fn db)})]})
