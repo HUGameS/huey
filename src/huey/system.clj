@@ -2,7 +2,8 @@
   (:require [com.stuartsierra.component :as component]
             [huey.routes :as r]
             [immutant.web :as web]
-            [taoensso.timbre :as log]))
+            [taoensso.timbre :as log])
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource))
 
 (defrecord App
   [handler-fn]
@@ -23,11 +24,32 @@
       (web/stop server))
     (assoc this :server nil)))
 
+(defrecord ConnectionPool
+  [config]
+  component/Lifecycle
+  (start [this]
+    (assoc this :datasource
+           (doto (ComboPooledDataSource.)
+             (.setDriverClass (:classname config))
+             (.setJdbcUrl (str "jdbc:" (:subprotocol config) ":" (:subname config)))
+             (.setUser (:user config))
+             (.setPassword (:password config))
+             ;; expire excess connections after 30 minutes of inactivity:
+             (.setMaxIdleTimeExcessConnections (* 30 60))
+             ;; expire connections after 3 hours of inactivity:
+             (.setMaxIdleTime (* 3 60 60)))))
+  (stop [this]
+    (when-let [datasource (:datasource this)]
+      (.close datasource))
+    (assoc this :datasource nil)))
+
 (defn new-system
-  [{:keys [server]
+  [{:keys [server mysql]
     :as   config}]
   (-> (component/system-map
-        :app       (->App r/app)
-        :server    (->ImmutantWebServer server))
+        :app    (->App r/app)
+        :server (->ImmutantWebServer server)
+        :db     (->ConnectionPool mysql))
       (component/system-using
-        {:server [:app]})))
+        {:app    [:db]
+         :server [:app]})))
