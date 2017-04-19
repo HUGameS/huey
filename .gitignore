@@ -16,3 +16,4 @@ pom.xml.asc
 /resources/prod
 /resources/staging
 /resources/test
+/tmp
