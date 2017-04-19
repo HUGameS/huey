@@ -5,10 +5,6 @@
             [friend-oauth2.workflow :as oauth2]
             [huey.user.github :as git]))
 
-(def roles
-  {:user  ::user
-   :admin ::admin})
-
 (def client-config
   {:client-id     (get-in env [:github-oauth2 :client-id])
    :client-secret (get-in env [:github-oauth2 :client-secret])
@@ -18,12 +14,9 @@
 (defn credential-fn
   [db token]
   (let [user (git/get-user-from-github (:access-token token))]
-    (when-not (git/existing-user? db (:user_id user))
-      (git/insert-new-user! db user))
-    (let [role (keyword (:role (git/get-user-role db (:user_id user))))]
-      {:identity token
-       :roles #{(get roles role)}
-       :user_id (:user_id user)})))
+    (git/check-user-details db user)
+    (-> (git/get-user-role-and-id db user)
+        (assoc :identity token))))
 
 (def uri-config
   {:authentication-uri {:url   (get-in env [:github-oauth2 :auth-url])

@@ -1,6 +1,10 @@
 (ns huey.user.models
   (:require [schema.core :as s]))
 
+(def roles
+  {:user  ::user
+   :admin ::admin})
+
 (s/defschema github-user-model
  {:user_id    s/Int
   :login      s/Str

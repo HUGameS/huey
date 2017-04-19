@@ -5,13 +5,14 @@
             [huey.auth :as auth]
             [huey.exceptions :as ex]
             [huey.middleware :as mw]
+            [huey.user.models :as m]
             [huey.util :as u]
             [ring.util.response :as response]
             [schema.core :as s]))
 
 (defroutes user-routes
   (GET "/profile" []
-       (friend/authorize #{:huey.auth/user}
+       (friend/authorize #{:huey.user.models/user}
                          (h/html5
                            u/pretty-head
                            (u/pretty-body
