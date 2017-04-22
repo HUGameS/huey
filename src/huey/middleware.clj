@@ -3,7 +3,6 @@
             [cemerick.friend :as friend]
             [compojure.api.middleware :as compojure-api]
             [huey.auth :as auth]
-            [huey.user.github :as git]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]))
 
 (defn wrap-transaction

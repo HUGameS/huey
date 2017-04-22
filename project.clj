@@ -11,7 +11,6 @@
                  [com.taoensso/sente         "1.11.0"]
                  [com.taoensso/timbre        "4.7.4"]
                  [environ                    "1.1.0"]
-                 [hiccup                     "1.0.5"]
                  [metosin/compojure-api      "1.1.10"]
                  [mysql/mysql-connector-java "6.0.5"]
                  [org.clojure/clojure        "1.8.0"]
@@ -24,7 +23,8 @@
                  [yogthos/config             "0.8"]]
   :ring {:handler huey.routes/app}
   :main ^:skip-aot huey.core
-  :repl-options {:init-ns user}
+  :repl-options {:init-ns user
+                 :welcome (println (slurp (clojure.java.io/resource "repl.txt")))}
   :uberjar-name "huey.jar"
   :profiles {:prod {:resource-paths ["resources/prod"]}
              :dev  {:dependencies [[reloaded.repl "0.2.3"]
