@@ -6,6 +6,7 @@
             [huey.exceptions :as ex]
             [huey.middleware :as mw]
             [huey.user.routes :as user]
+            [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :as response]
             [schema.core :as s]))
 
@@ -27,18 +28,19 @@
 
 
     (middleware
-      [[mw/wrap-middleware (:db components)]]
-
+       [[wrap-defaults site-defaults]]
       (GET "/" [] (io/resource "repl.txt"))
+      (context "/healthcheck" [] :tags ["Healthcheck"]
+          (GET "/ping" []
+               (-> (response/response "pong")
+                   (response/content-type "text/plain; charset=UTF-8")))))
+
+    (middleware
+      [[mw/wrap-middleware (:db components)]]
 
       (context "/auth" [] :tags ["auth"]
         (GET "/login" [] (friend/authorize #{:huey.user.models/user} (response/redirect "/user/profile")))
         (friend/logout (ANY "/logout" request (response/redirect "/"))))
 
       (context "/user" [] :tags ["user"]
-        user/user-routes)
-
-      (context "/healthcheck" [] :tags ["Healthcheck"]
-        (GET "/ping" []
-             (-> (response/response "pong")
-                 (response/content-type "text/plain; charset=UTF-8")))))))
+        user/user-routes))))

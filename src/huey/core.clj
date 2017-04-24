@@ -2,7 +2,8 @@
   (:require [huey.system :as system]
             [com.stuartsierra.component :as component]
             [config.core :refer [env]]
-            [taoensso.timbre :as log]))
+            [taoensso.timbre :as log])
+  (:gen-class))
 
 (defn -main
   [& args]

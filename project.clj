@@ -25,7 +25,7 @@
   :main ^:skip-aot huey.core
   :repl-options {:init-ns user
                  :welcome (println (slurp (clojure.java.io/resource "repl.txt")))}
-  :uberjar-name "huey.jar"
+  :uberjar-name "huey-standalone.jar"
   :profiles {:prod {:resource-paths ["resources/prod"]}
              :dev  {:dependencies [[reloaded.repl "0.2.3"]
                                    [midje "1.8.3"]]
