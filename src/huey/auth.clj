@@ -8,8 +8,7 @@
 (def client-config
   {:client-id     (get-in env [:github-oauth2 :client-id])
    :client-secret (get-in env [:github-oauth2 :client-secret])
-   :callback      {:domain "http://localhost:3000" ;; replace this for production with the appropriate site URL
-                   :path "/oauthcallback"}})
+   :callback      (get-in env [:github-oauth2 :callback])})
 
 (defn credential-fn
   [db token]
