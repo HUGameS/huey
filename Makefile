@@ -4,6 +4,11 @@ APP_ENV    ?= dev
 
 GIT_SHA    = $$(git rev-parse --short HEAD)
 
+install:
+	sed -e "s/{{HOST_IP}}/\"$(HOST_IP)\"/" config.sample.edn > dev/resources/config.edn;
+	sed -e "s/{{HOST_IP}}/$(HOST_IP)/" nginx.conf > tmp/nginx/nginx.conf;
+	sed -e "s/{{HOST_IP}}/$(HOST_IP)/" my.cnf > tmp/mysql/my.cnf;
+
 mysql:
 	MYSQL_PWD=password mysql -u huey_$(APP_ENV)_user --port $(MYSQL_PORT) --protocol tcp huey_$(APP_ENV)
 

@@ -7,11 +7,11 @@ mysql:
   volumes:
     - ./tmp/mysql:/var/lib/mysql
     - ./resources/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-    - ./resources/mysql/my.cnf:/etc/mysql/my.cf
+    - ./tmp/mysql/my.cnf:/etc/mysql/my.cf
 nginx:
   image: nginx:stable-alpine
   volumes:
-    - ./resources/nginx/nginx.conf:/etc/nginx/nginx.conf
+    - ./tmp/nginx/nginx.conf:/etc/nginx/nginx.conf
     - ./tmp/nginx/logs:/var/log/nginx
   ports:
     - 3380:80
