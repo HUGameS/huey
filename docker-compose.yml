@@ -14,4 +14,4 @@ nginx:
     - ./resources/nginx/nginx.conf:/etc/nginx/nginx.conf
     - ./tmp/nginx/logs:/var/log/nginx
   ports:
-    - 80:80
+    - 3380:80
