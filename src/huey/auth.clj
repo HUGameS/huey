@@ -3,19 +3,18 @@
             [config.core :refer [env]]
             [friend-oauth2.util :as util]
             [friend-oauth2.workflow :as oauth2]
-            [huey.user.github :as git]))
+            [huey.user.handlers :as user]))
 
 (def client-config
   {:client-id     (get-in env [:github-oauth2 :client-id])
    :client-secret (get-in env [:github-oauth2 :client-secret])
-   :callback      {:domain "http://localhost:3000" ;; replace this for production with the appropriate site URL
-                   :path "/oauthcallback"}})
+   :callback      (get-in env [:github-oauth2 :callback])})
 
 (defn credential-fn
   [db token]
-  (let [user (git/get-user-from-github (:access-token token))]
-    (git/check-user-details db user)
-    (-> (git/get-user-role-and-id db user)
+  (let [user (user/get-user-from-github (:access-token token))]
+    (user/check-user-details db user)
+    (-> (user/get-user-role-and-id db user)
         (assoc :identity token))))
 
 (def uri-config

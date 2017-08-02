@@ -1,5 +1,6 @@
-(ns huey.user.github
-  (:require [cheshire.core :refer :all]
+(ns huey.user.handlers
+  (:require [cemerick.friend :as friend]
+            [cheshire.core :refer :all]
             [clj-http.client :as client]
             [clj-time.coerce :as c]
             [clj-time.core :as t]
@@ -49,3 +50,14 @@
    (insert-new-user! db user)
    (when (update-user-details? db user)
      (update-user-details! db user))))
+
+(defn get-user-id-from-session
+  [request]
+  (-> request
+      friend/identity
+      friend/current-authentication
+      :user_id))
+
+(defn select-user-by-id
+  [db request]
+  (q/select-user-by-id db {:user_id (get-user-id-from-session request)}))

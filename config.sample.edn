@@ -1,4 +1,4 @@
-{:server        {:host "localhost"
+{:server        {:host {{HOST_IP}}
                  :port 3000
                  :path "/"}
  :mysql         {:classname   "com.mysql.cj.jdbc.Driver"
@@ -9,8 +9,12 @@
  :github-oauth2 {:client-id     "client-id"
                  :client-secret "client-secret"
                  :auth-url      "https://github.com/login/oauth/authorize"
-                 :access-uri    "https://github.com/login/oauth/access_token"}
+                 :access-uri    "https://github.com/login/oauth/access_token"
+                 :callback     {:domain "http://localhost:3000" ;; replace this for production with the appropriate site URL
+                                :path "/oauthcallback"}}
  :google-oauth2 {:client-id     "client-id"
                  :client-secret "client-secret"
                  :auth-url      "https://accounts.google.com/o/oauth2/auth"
-                 :access-uri    "https://accounts.google.com/o/oauth2/token"}}
+                 :access-uri    "https://accounts.google.com/o/oauth2/token"
+                 :callback     {:domain "http://localhost:3000" ;; replace this for production with the appropriate site URL
+                                :path "/oauthcallback"}}}
